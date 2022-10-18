@@ -1,5 +1,7 @@
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn import metrics
+import numpy as np
+import pandas as pandas
 
 
 class tuning_algorithmms:
@@ -26,7 +28,7 @@ class tuning_algorithmms:
         :return:
         """
         with open('reports/parameter_tuning', 'a') as results:
-            results.write()
+            results.write('hello world')
 
         print("hewllo world ")
         return 0
