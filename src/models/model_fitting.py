@@ -141,7 +141,7 @@ class parameter_tuning:
         Decision Tree Classifier
         """
         # Initiate the classifier
-        classifier = DecisionTreeClassifier(n_jobs=-1)
+        classifier = DecisionTreeClassifier()
         # parameters
         dt_params = {
             'max_features': ['sqrt', 'auto', 'log2', None],
@@ -151,8 +151,8 @@ class parameter_tuning:
             'criterion': ['gini', 'entropy'],
             'random_state': [100]
         }
-        print("Tuning Type:{0}\n".format(self.search_type))
-        print("Classifier name:{0}\n".format(classifier.__class__.__name__))
+        # print("Tuning Type:{0}\n".format(self.search_type))
+        # print("Classifier name:{0}\n".format(classifier.__class__.__name__))
         for key, value in dt_params.items():
             print("{0}:{1}".format(key, value))
         # parameters for grid search
@@ -166,14 +166,8 @@ K-nearest neighbor classification
         # Initiate the classifier
         classifier = KNeighborsClassifier(n_jobs=-1)
         # parameters
-        knn_params = {
-            'max_features': ['sqrt', 'auto', 'log2', None],
-            'max_depth': sp_randint(5, 50),
-            'min_samples_leaf': sp_randint(1, 15),
-            'min_samples_split': sp_randint(2, 30),
-            'criterion': ['gini', 'entropy'],
-            'random_state': [100]
-        }
+        k_range = list(range(1, 31))
+        knn_params = dict(n_neighbors=k_range)
         # print("Tuning Type:{0}\n".format(self.search_type))
         # print("Classifier name:{0}\n".format(classifier.__class__.__name__))
         for key, value in knn_params.items():
@@ -182,14 +176,14 @@ K-nearest neighbor classification
         # fitting the grid search or random search
         self._fit_grid_random_search(self.X[0], self.y[0], classifier, knn_params)
 
+    def xgboost_classification(self):
+        """
+xgboost
+        """
 
 
 
 
 
-# %%
-from sklearn.linear_model import LogisticRegression
-
-print(LogisticRegression().__class__.__name__)
 
 # %%
