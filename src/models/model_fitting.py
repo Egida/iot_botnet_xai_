@@ -77,6 +77,8 @@ class parameter_tuning:
 
         # Save the model
         joblib.dump(tuned_model, f'reports/result_logs/{self.file_location}/{mlclassifier_name}.pkl')
+
+        # adding output results to a file.
         with open('reports/parameter_tuning.txt', 'a') as res_logs:
             res_logs.write('==' * 40)
             res_logs.write("\n")
@@ -133,8 +135,27 @@ class parameter_tuning:
 
     def dt_classification(self):
         """
-        Decision tree classifier
+        Decision Tree Classifier
         """
+        # Initiate the classifier
+        classifier = RandomForestClassifier(n_jobs=-1)
+        # parameters
+        dt_params = {
+            'max_features': ['sqrt', 'auto', 'log2', None],
+            'max_depth': sp_randint(5, 50),
+            'min_samples_leaf': sp_randint(1, 15),
+            'min_samples_split': sp_randint(2, 30),
+            'criterion': ['gini', 'entropy'],
+            'random_state': [100]
+        }
+        print("Tuning Type:{0}\n".format(self.search_type))
+        print("Classifier name:{0}\n".format(classifier.__class__.__name__))
+        for key, value in dt_params.items():
+            print("{0}:{1}".format(key, value))
+        # parameters for grid search
+        # fitting the grid search or random search
+        self._fit_grid_random_search(self.X[0], self.y[0], classifier, dt_params)
+
 
 
 
