@@ -83,7 +83,7 @@ class parameter_tuning:
             res_logs.write("1.Classifier:{0}\n".format(mlclassifier_name))
             res_logs.write("2.Best Parameters:{0}\n".format(str(tuned_model.best_params_)))
             res_logs.write("3.Duration:{0}\n".format(str(finish_time)))
-            res_logs.write(f'\nAccuracy: %.5f (%.5f)' % (tuned_model.best_score_ * 100, mean(tuned_model.cv_results_['std_test_score']) * 100))
+            res_logs.write('\nAccuracy: %.5f (%.5f)' % (tuned_model.best_score_ * 100, mean(tuned_model.cv_results_['std_test_score']) * 100))
             res_logs.write('\n')
             res_logs.write('==' * 40)
             res_logs.write('\n')
@@ -124,9 +124,9 @@ class parameter_tuning:
             'criterion': ['gini', 'entropy'],
             'random_state': [100]
         }
-
         # fitting the grid search or random search
         self._fit_grid_random_search(self.X[0], self.y[0], classifier, rf_params)
+
 
 
 # %%
