@@ -9,32 +9,28 @@ from sklearn.ensemble import RandomForestClassifier
 from scipy.stats import randint as sp_randint
 from scipy.stats import randint as sp_randint
 from random import randrange as sp_randrange
-
+from sklearn.model_selection import KFold
 
 class parameter_tuning:
     """
     Tuning Algorithms
     """
 
-    def __int__(self, X, y, metric_type, cv, search_type='grid_search'):
+
+    def __int__(self, metric_type, file_location,search_type='grid_search'):
         """
         Tuning the algorithms
 
-        :param X: Independent variable
-        :param y: Dependent Variable
         :param metric_type: 1. accuracy, f1-score, recall, precision
         :param cv: Cross validation score
         :param search_type: Hyper Parameter Tuning type 1. Grid Search 2. Random Search type
         :return:
         """
-
-        self.X = X
-        self.y = y
         self.metric_type = metric_type,
-        self.cv = cv,
-        self.search_type = search_type
+        self.search_type = search_type,
+        self.file_location = file_location
 
-    def _fit_grid_random_search(self,ml_classifier, parameters):
+    def _fit_grid_random_search(self,X,y,ml_classifier, parameters):
 
         """ Training the model using Grid search or Random search hyperparameter tuning methods.
 
@@ -48,6 +44,7 @@ class parameter_tuning:
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
         print("Classifier is {0}".format(mlclassifier_name))
         # check the Parameter type,
+        cv = KFold(n_splits=5, random_state=100, shuffle=True)
 
         if self.search_type == 'grid_search':
             # Grid Search parameter type
@@ -55,14 +52,13 @@ class parameter_tuning:
                                        param_grid=parameters,
                                        scoring=self.metric_type,
                                        verbose=10,
-                                       cv=self.cv,
                                        refit=False)
         elif self.search_type == 'random_search':
             # Random Search Parameter Tuning
             tuned_model = RandomizedSearchCV(estimator=ml_classifier,
                                              param_distributions=parameters,
                                              scoring=self.metric_type,
-                                             cv=self.cv,
+                                             cv=cv,
                                              verbose=10,
                                              refit=False)
 
@@ -72,12 +68,18 @@ class parameter_tuning:
                   f'Key word should be either 1.grid_search or 2.random_search')
 
         print(tuned_model)
+
+
         # Finally fit the Classifier
         start_time = self.timer(0) # starting time for model training
-        tuned_model = tuned_model.fit(self.X, self.y) # fitting the model
+        tuned_model = tuned_model.fit(X, y) # fitting the model
         finish_time = self.timer(start_time) # Finishing for model training
+
+
         # Save the model
-        joblib.dump(tuned_model, f'reports/{mlclassifier_name}.pkl')
+        joblib.dump(tuned_model, f'reports/{self.file_location}/{mlclassifier_name}.pkl')
+
+
         with open('reports/parameter_tuning.txt', 'a') as res_logs:
             res_logs.write('hello world')
             res_logs.write('==' * 40)
@@ -86,7 +88,7 @@ class parameter_tuning:
             res_logs.write("2.Best Parameters:{0}\n".format(str(tuned_model.best_params_)))
             res_logs.write("3.Finishing time")
 
-        return 0
+        return
 
     # Time to  count the model for training.
     def timer(self, start_time=None):
