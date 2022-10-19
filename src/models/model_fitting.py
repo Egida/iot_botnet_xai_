@@ -10,7 +10,8 @@ from scipy.stats import randint as sp_randint
 from scipy.stats import randint as sp_randint
 from random import randrange as sp_randrange
 from sklearn.model_selection import KFold
-
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 class parameter_tuning:
     """
@@ -43,6 +44,8 @@ class parameter_tuning:
         :param parameters: various combinations for parameters for classifier.
         :return:
         """
+
+        print("Tuning Type:{0}\n".format(self.search_type))
         # Classifier name
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
         print("Classifier is {0}".format(mlclassifier_name))
@@ -138,7 +141,7 @@ class parameter_tuning:
         Decision Tree Classifier
         """
         # Initiate the classifier
-        classifier = RandomForestClassifier(n_jobs=-1)
+        classifier = DecisionTreeClassifier(n_jobs=-1)
         # parameters
         dt_params = {
             'max_features': ['sqrt', 'auto', 'log2', None],
@@ -155,6 +158,31 @@ class parameter_tuning:
         # parameters for grid search
         # fitting the grid search or random search
         self._fit_grid_random_search(self.X[0], self.y[0], classifier, dt_params)
+
+    def knn_classification(self):
+        """
+K-nearest neighbor classification
+        """
+        # Initiate the classifier
+        classifier = KNeighborsClassifier(n_jobs=-1)
+        # parameters
+        knn_params = {
+            'max_features': ['sqrt', 'auto', 'log2', None],
+            'max_depth': sp_randint(5, 50),
+            'min_samples_leaf': sp_randint(1, 15),
+            'min_samples_split': sp_randint(2, 30),
+            'criterion': ['gini', 'entropy'],
+            'random_state': [100]
+        }
+        # print("Tuning Type:{0}\n".format(self.search_type))
+        # print("Classifier name:{0}\n".format(classifier.__class__.__name__))
+        for key, value in knn_params.items():
+            print("{0}:{1}".format(key, value))
+        # parameters for grid search
+        # fitting the grid search or random search
+        self._fit_grid_random_search(self.X[0], self.y[0], classifier, knn_params)
+
+
 
 
 
