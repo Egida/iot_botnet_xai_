@@ -1,7 +1,7 @@
 import joblib
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn import metrics
-import numpy as np
+from numpy import mean
 import pandas as pandas
 import pickle
 from datetime import datetime
@@ -11,26 +11,29 @@ from scipy.stats import randint as sp_randint
 from random import randrange as sp_randrange
 from sklearn.model_selection import KFold
 
+
 class parameter_tuning:
     """
     Tuning Algorithms
     """
 
-
-    def __int__(self, metric_type, file_location,search_type='grid_search'):
+    def __int__(self, X, y, metric_type, file_location, search_type='grid_search'):
         """
         Tuning the algorithms
 
+        :param file_location: resultant file location.
         :param metric_type: 1. accuracy, f1-score, recall, precision
         :param cv: Cross validation score
         :param search_type: Hyper Parameter Tuning type 1. Grid Search 2. Random Search type
         :return:
         """
+        self.X = X,
+        self.y = y,
         self.metric_type = metric_type,
         self.search_type = search_type,
         self.file_location = file_location
 
-    def _fit_grid_random_search(self,X,y,ml_classifier, parameters):
+    def _fit_grid_random_search(self, X, y, ml_classifier, parameters):
 
         """ Training the model using Grid search or Random search hyperparameter tuning methods.
 
@@ -67,41 +70,41 @@ class parameter_tuning:
             print(f'{search_type} is wrong key word.'
                   f'Key word should be either 1.grid_search or 2.random_search')
 
-        print(tuned_model)
-
-
         # Finally fit the Classifier
-        start_time = self.timer(0) # starting time for model training
-        tuned_model = tuned_model.fit(X, y) # fitting the model
-        finish_time = self.timer(start_time) # Finishing for model training
-
+        start_time = self.timer(0)  # starting time for model training
+        tuned_model = tuned_model.fit(self.X[0], self.y[0])  # fitting the model
+        finish_time = self.timer(start_time)  # Finishing for model training
 
         # Save the model
         joblib.dump(tuned_model, f'reports/{self.file_location}/{mlclassifier_name}.pkl')
-
-
         with open('reports/parameter_tuning.txt', 'a') as res_logs:
-            res_logs.write('hello world')
             res_logs.write('==' * 40)
             res_logs.write("\n")
             res_logs.write("1.Classifier:{0}\n".format(mlclassifier_name))
             res_logs.write("2.Best Parameters:{0}\n".format(str(tuned_model.best_params_)))
-            res_logs.write("3.Finishing time")
-
-        return
+            res_logs.write("3.Duration:{0}\n".format(str(finish_time)))
+            res_logs.write(f'\nAccuracy: %.5f (%.5f)' % (tuned_model.best_score_ * 100, mean(tuned_model.cv_results_['std_test_score']) * 100))
+            res_logs.write('\n')
+            res_logs.write('==' * 40)
+            res_logs.write('\n')
+        return tuned_model.best_score_
 
     # Time to  count the model for training.
-    def timer(self, start_time=None):
+    @staticmethod
+    def timer(start_time=None):
         """
+
         :param start_time: 0
         :return: Completion time
         """
+        time_list = []
         if not start_time:
             start_time = datetime.now()
             return start_time
         elif start_time:
             thour, temp_sec = divmod((datetime.now() - start_time).total_seconds(), 3600)
             tmin, tsec = divmod(temp_sec, 60)
+            # time_list.append(thour)
             # print("\n Time taken: %i hours %i minutes and %s seconds" % (thour, tmin, round(tsec,2)))
         return str("Time consumption: %i hours %i minutes and %s seconds" % (thour, tmin, round(tsec, 2)))
 
@@ -123,7 +126,7 @@ class parameter_tuning:
         }
 
         # fitting the grid search or random search
-        self._fit_grid_random_search(self.X, self.y, classifier, rf_params)
+        self._fit_grid_random_search(self.X[0], self.y[0], classifier, rf_params)
 
 
 # %%
