@@ -1,6 +1,7 @@
 from datetime import datetime
 import joblib
 import numpy as np
+import pandas as pd
 from numpy import mean
 from scipy.stats import randint as sp_randint
 from sklearn.ensemble import RandomForestClassifier
@@ -10,6 +11,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 import xgboost as xgb
 import lightgbm as lgb
+from scipy.stats import uniform as sp_uniform
+from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier
 
 
 class parameter_tuning:
@@ -33,7 +36,7 @@ class parameter_tuning:
         self.search_type = search_type,
         self.file_location = file_location
 
-    def _fit_grid_random_search(self, X, y, ml_classifier, parameters):
+    def _fit_grid_random_search(self, ml_classifier, parameters):
 
         """ Training the model using Grid search or Random search hyperparameter tuning methods.
 
@@ -78,10 +81,10 @@ class parameter_tuning:
         finish_time = self.timer(start_time)  # Finishing for model training
 
         # Save the model
-        joblib.dump(tuned_model, f'reports/result_logs/{self.file_location}/{mlclassifier_name}.pkl')
+        joblib.dump(tuned_model, f'models/{self.file_location}/{mlclassifier_name}.pkl')
 
         # adding output results to a file.
-        with open('reports/parameter_tuning.txt', 'a') as res_logs:
+        with open(f'reports/{self.file_location}/parameter_tuning.txt', 'a') as res_logs:
             res_logs.write('==' * 40)
             res_logs.write("\n")
             res_logs.write("1.Classifier:{0}\n".format(mlclassifier_name))
@@ -92,7 +95,8 @@ class parameter_tuning:
             res_logs.write('\n')
             res_logs.write('==' * 40)
             res_logs.write('\n')
-        return tuned_model.cv_results_
+        cv_results_df = pd.DataFrame(tuned_model.cv_results_)
+        return cv_results_df
 
     # Time to  count the model for training.
     @staticmethod
@@ -134,7 +138,7 @@ class parameter_tuning:
             print("{0}:{1}".format(key, value))
         # parameters for grid search
         # fitting the grid search or random search
-        cv_results = self._fit_grid_random_search(self.X[0], self.y[0], classifier, rf_params)
+        cv_results = self._fit_grid_random_search(classifier, rf_params)
         return cv_results
 
     def dt_classification(self):
@@ -158,9 +162,8 @@ class parameter_tuning:
             print("{0}:{1}".format(key, value))
         # parameters for grid search
         # fitting the grid search or random search
-        cv_results = self._fit_grid_random_search(self.X[0], self.y[0], classifier, dt_params)
+        cv_results = self._fit_grid_random_search(classifier, dt_params)
         return cv_results
-
 
     def knn_classification(self):
         """
@@ -181,7 +184,7 @@ K-nearest neighbor classification
             print("{0}:{1}".format(key, value))
         # parameters for grid search
         # fitting the grid search or random search
-        cv_results = self._fit_grid_random_search(self.X[0], self.y[0], classifier, knn_params)
+        cv_results = self._fit_grid_random_search(classifier, knn_params)
         return cv_results
 
     def xgboost_classification(self):
@@ -189,29 +192,87 @@ K-nearest neighbor classification
 xgboost
         """
         xgb_params = rf_params = {
-            'n_estimators': list(range(5, 501, 50)),  # 10
-            'learning_rate': list(np.arange(0, 1.1, 0.4)),  # 3
-            'max_depth': list(range(5, 51, 5)),  # 10
-            'subsample': list(np.arange(0.1, 1.1, 0.4)),  # 3
-            'colsample_bytree': list(np.arange(0.1, 1.1, 0.4)),  # 3
+            'num_leaves': sp_randint(6, 50),
+            'min_child_samples': sp_randint(100, 500),
+            'learning_rate': list(np.arange(0, 1.1, 0.4)),
+            'max_depth': list(range(5, 51, 5)),
+            'min_child_weight': [1e-5, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4],
+            'subsample': sp_uniform(loc=0.2, scale=0.8),
+            'colsample_bytree': sp_uniform(loc=0.4, scale=0.6),
+            'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
+            'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100]
         }
         xgb_classifier = xgb.XGBClassifier(objective='binary:logistic',
                                            use_label_encoder=False,
                                            random_state=100)
 
-        cv_results=self._fit_grid_random_search(self.X,self.y,xgb_classifier,xgb_params)
+        cv_results = self._fit_grid_random_search(xgb_classifier, xgb_params)
         return cv_results
-
 
     def lgboost_classification(self):
         """
         Light gradient boosting
         """
-        lgb_params = rf_params = {
-            'n_estimators': list(range(5, 501, 50)),  # 10
-            'learning_rate': list(np.arange(0, 1.1, 0.4)),  # 3
-            'max_depth': list(range(5, 51, 5)),  # 10
-            'subsample': list(np.arange(0.1, 1.1, 0.4)),  # 3
-            'colsample_bytree': list(np.arange(0.1, 1.1, 0.4)),  # 3
+        # parameters combinations
+        lgb_params = {
+            'num_leaves': sp_randint(6, 50),
+            'learning_rate': list(np.arange(0, 1.1, 0.4)),
+            'min_child_samples': sp_randint(100, 500),
+            'max_depth': list(range(5, 51, 5)),
+            'min_child_weight': [1e-5, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4],
+            'subsample': sp_uniform(loc=0.2, scale=0.8),
+            'colsample_bytree': sp_uniform(loc=0.4, scale=0.6),
+            'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
+            'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100]
         }
+
+        lgbm_classifier = lgb.LGBMClassifier(random_state=314, silent=True, metric='None', n_jobs=4, n_estimators=5000)
+
+        cv_results = self._fit_grid_random_search(lgbm_classifier, lgb_params)
+        return cv_results
+
+    def et_classification(self):
+        """
+        Extra tree Classification
+        """
+        xt_clf = ExtraTreesClassifier(verbose=10,
+                                      random_state=123,
+                                      n_jobs=-1)
+
+        xt_params = {
+            'n_estimators': [int(x) for x in range(200, 2000, 200)],
+            'max_features': ['sqrt', 'auto', 'log2', None],
+            'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
+            'min_samples_leaf': sp_randint(1, 15),
+            'min_samples_split': sp_randint(2, 30),
+            'bootstrap': [True, False]
+        }
+
+        cv_results = self._fit_grid_random_search(xt_clf, xt_params)
+        return cv_results
+
+    def grdient_boosting_classification(self):
+        """
+        Gradient Boosting classifier
+        """
+        lgb_params = {
+            'num_leaves': sp_randint(6, 50),
+            'min_child_samples': sp_randint(100, 500),
+            'max_depth': list(range(5, 51, 5)),
+            'learning_rate': list(np.arange(0, 1.1, 0.4)),
+            'min_child_weight': [1e-5, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4],
+            'subsample': sp_uniform(loc=0.2, scale=0.8),
+            'colsample_bytree': sp_uniform(loc=0.4, scale=0.6),
+            'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
+            'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100]
+        }
+
+        gbc_clf = GradientBoostingClassifier(min_samples_split=500, min_samples_leaf=50, max_depth=8,
+                                             max_features='sqrt', subsample=0.8, random_state=10)
+        cv_results = self._fit_grid_random_search(lgb_params,gbc_clf)
+        return cv_results
+
+
+
+
 
