@@ -82,7 +82,7 @@ class parameter_tuning:
         tuned_model = tuned_model.fit(self.X[0], self.y[0])  # fitting the model
         finish_time = self.timer(start_time)  # Finishing for model training
 
-        file_name = f'{self.file_location}/{mlclassifier_name}.pkl'
+        file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
         print("File location :{0}".format(file_name))
 
         # Save the model
