@@ -98,7 +98,6 @@ class parameter_tuning:
         # save the model
         return cv_results_df
 
-
     def res_logs_text_file(self, mlclassifier_name, tuned_model, finish_time, file_location):
         """
         saving the result into a text files
@@ -157,12 +156,13 @@ class parameter_tuning:
         # parameters
         rf_params = {
             'max_features': ['sqrt', 'auto', 'log2', None],
-            'max_depth': sp_randint(5, 50),
-            'min_samples_leaf': sp_randint(1, 15),
-            'min_samples_split': sp_randint(2, 30),
+            'max_depth': list(range(5, 51)),
+            'min_samples_leaf': list(range(1, 16)),
+            'min_samples_split': list(range(2, 31)),
             'criterion': ['gini', 'entropy'],
             'random_state': [100]
         }
+
         print("Tuning Type:{0}\n".format(self.search_type))
         print("Classifier name:{0}\n".format(classifier.__class__.__name__))
         for key, value in rf_params.items():
@@ -181,12 +181,13 @@ class parameter_tuning:
         # parameters
         dt_params = {
             'max_features': ['sqrt', 'auto', 'log2', None],
-            'max_depth': sp_randint(5, 50),
-            'min_samples_leaf': sp_randint(1, 15),
-            'min_samples_split': sp_randint(2, 30),
+            'max_depth': list(range(5, 51)),
+            'min_samples_leaf': list(range(1, 16)),
+            'min_samples_split': list(range(2, 31)),
             'criterion': ['gini', 'entropy'],
             'random_state': [100]
         }
+
         # print("Tuning Type:{0}\n".format(self.search_type))
         # print("Classifier name:{0}\n".format(classifier.__class__.__name__))
         # for key, value in dt_params.items():
