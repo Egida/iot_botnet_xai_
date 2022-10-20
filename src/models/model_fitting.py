@@ -39,18 +39,22 @@ class parameter_tuning:
     def _fit_grid_random_search(self, ml_classifier, parameters):
 
         """ Training the model using Grid search or Random search hyperparameter tuning methods.
-
         :param X: Independent Variable
         :param y: Dependent Variable
         :param ml_classifier: Scikit learn classifier
         :param parameters: various combinations for parameters for classifier.
         :return:
         """
-        cv_result_df = pd.DataFrame()
+
+        cv_results_df = pd.DataFrame()
         print("Tuning Type:{0}\n".format(self.search_type))
         # Classifier name
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
         print("Classifier is {0}".format(mlclassifier_name))
+        X = self.X[0]
+        y = self.y[0]
+        # data shape
+        print("X variable: {0}\ny Variable:{1}".format(X.shape, y.shape))
         # check the Parameter type,
         cv = KFold(n_splits=5, random_state=100, shuffle=True)
 
@@ -64,32 +68,33 @@ class parameter_tuning:
                                        verbose=10,
                                        refit=False)
             start_time = self.timer(0)
-            tuned_model.fit(self.X[0], self.y[0])
+            tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
+            print("Best parameters:{0}".format(tuned_model.best_params_))
             # saving the logs of model into a text file
-            cv_results_df = self.res_logs_text_file(mlclassifier_name,
-                                                    tuned_model,
-                                                    finishing_time,
-                                                    self.file_location)
-            return cv_results_df
+            df = self.res_logs_text_file(mlclassifier_name,
+                                         tuned_model,
+                                         finishing_time,
+                                         self.file_location)
+
+            return cv_results_df.append(df)
         # random search
         elif search_type == 'random_search':
             # Random Search Parameter Tuning
-            tuned_model = RandomizedSearchCV(estimator=ml_classifier,
-                                             param_distributions=parameters,
-                                             scoring=self.metric_type,
-                                             cv=cv,
-                                             verbose=10,
-                                             refit=False)
+            tuned_model = RandomizedSearchCV(estimator=ml_classifier, param_distributions=parameters,
+                                             scoring=self.metric_type, cv=cv,
+                                             verbose=10, refit=False)
             # Tuning the model
             start_time = self.timer(0)
-            tuned_model.fit(self.X[0], self.y[0])
+            tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
+            print("Best parameters:{0}".format(tuned_model.best_params_))
             # saving the logs of model into a text file
-            cv_results_df = self.res_logs_text_file(mlclassifier_name,
-                                                    tuned_model,
-                                                    finishing_time,
-                                                    self.file_location)
+            df = self.res_logs_text_file(mlclassifier_name,
+                                         tuned_model,
+                                         finishing_time,
+                                         self.file_location)
+            return cv_results_df.append(df)
         else:
             print("===========================================")
             print(f'{search_type} is wrong key word.'
