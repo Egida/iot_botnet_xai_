@@ -269,10 +269,19 @@ xgboost
 
         gbc_clf = GradientBoostingClassifier(min_samples_split=500, min_samples_leaf=50, max_depth=8,
                                              max_features='sqrt', subsample=0.8, random_state=10)
-        cv_results = self._fit_grid_random_search(lgb_params,gbc_clf)
+        cv_results = self._fit_grid_random_search(lgb_params, gbc_clf)
         return cv_results
 
-
-
-
-
+    def fitting_models(self):
+        """
+        fitting all the models
+        """
+        model_fitting_dict = {'dt': self.dt_classification(),
+                              'rf': self.rf_classification(),
+                              'ext':self.et_classification(),
+                              'gbc':self.grdient_boosting_classification(),
+                              'xgb': self.xgboost_classification(),
+                              'lgb': self.lgboost_classification(),
+                              'knn':self.knn_classification()
+                              }
+        return model_fitting_dict
