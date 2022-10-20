@@ -12,7 +12,7 @@ class Filtermethods:
     @staticmethod
     def fishers_score(data, labels):
         """
-        Computes the fishers for every feature between data points and label.
+        Computes the fishers for every feature between indepdent Variable and Dependent Variable.
         :param data: Independent variables
         :param labels: Dependent Variable
         :return: Fishers score for every Feature
