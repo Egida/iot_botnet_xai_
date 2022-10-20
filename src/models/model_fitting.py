@@ -54,14 +54,16 @@ class parameter_tuning:
         # check the Parameter type,
         cv = KFold(n_splits=5, random_state=100, shuffle=True)
 
-        if self.search_type == 'grid_search':
+        search_type = self.search_type[0]
+
+        if search_type == 'grid_search':
             # Grid Search parameter type
             tuned_model = GridSearchCV(ml_classifier,
                                        param_grid=parameters,
                                        scoring=self.metric_type,
                                        verbose=10,
                                        refit=False)
-        elif self.search_type == 'random_search':
+        elif search_type == 'random_search':
             # Random Search Parameter Tuning
             tuned_model = RandomizedSearchCV(estimator=ml_classifier,
                                              param_distributions=parameters,
@@ -80,8 +82,11 @@ class parameter_tuning:
         tuned_model = tuned_model.fit(self.X[0], self.y[0])  # fitting the model
         finish_time = self.timer(start_time)  # Finishing for model training
 
+        file_name = f'{self.file_location}/{mlclassifier_name}.pkl'
+        print("File location :{0}".format(file_name))
+
         # Save the model
-        joblib.dump(tuned_model, f'models/{self.file_location}/{mlclassifier_name}.pkl')
+        joblib.dump(tuned_model, file_name)
 
         # adding output results to a file.
         with open(f'reports/{self.file_location}/parameter_tuning.txt', 'a') as res_logs:
@@ -158,8 +163,8 @@ class parameter_tuning:
         }
         # print("Tuning Type:{0}\n".format(self.search_type))
         # print("Classifier name:{0}\n".format(classifier.__class__.__name__))
-        for key, value in dt_params.items():
-            print("{0}:{1}".format(key, value))
+        # for key, value in dt_params.items():
+        #     print("{0}:{1}".format(key, value))
         # parameters for grid search
         # fitting the grid search or random search
         cv_results = self._fit_grid_random_search(classifier, dt_params)
@@ -285,3 +290,5 @@ xgboost
                               'knn':self.knn_classification()
                               }
         return model_fitting_dict
+
+
