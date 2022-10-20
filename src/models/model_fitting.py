@@ -47,26 +47,29 @@ class parameter_tuning:
         """
 
         cv_results_df = pd.DataFrame()
+        print("==" * 50)
         print("Tuning Type:{0}\n".format(self.search_type))
         # Classifier name
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
         print("Classifier is {0}".format(mlclassifier_name))
+        # changing tuple object to variables
         X = self.X[0]
         y = self.y[0]
         # data shape
         print("X variable: {0}\ny Variable:{1}".format(X.shape, y.shape))
-        # check the Parameter type,
+        # cross validation
         cv = KFold(n_splits=5, random_state=100, shuffle=True)
-
         search_type = self.search_type[0]
+        metric_type = self.metric_type[0]
+        file_location = self.file_location[0]
+        print("Metric:{0}".format(metric_type))
         # Grid search tuning.
         if search_type == 'grid_search':
             # Grid Search parameter type
-            tuned_model = GridSearchCV(ml_classifier,
+            tuned_model = GridSearchCV(estimator=ml_classifier,
                                        param_grid=parameters,
-                                       scoring=self.metric_type,
-                                       verbose=10,
-                                       refit=False)
+                                       scoring=metric_type,
+                                       verbose=10, refit=False, n_jobs=-1)
             start_time = self.timer(0)
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
@@ -75,15 +78,15 @@ class parameter_tuning:
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
                                          finishing_time,
-                                         self.file_location)
+                                         file_location)
 
             return cv_results_df.append(df)
         # random search
         elif search_type == 'random_search':
             # Random Search Parameter Tuning
             tuned_model = RandomizedSearchCV(estimator=ml_classifier, param_distributions=parameters,
-                                             scoring=self.metric_type, cv=cv,
-                                             verbose=10, refit=False)
+                                             scoring=metric_type, cv=cv,
+                                             verbose=10, refit=False, n_jobs=-1)
             # Tuning the model
             start_time = self.timer(0)
             tuned_model.fit(X, y)
@@ -93,7 +96,7 @@ class parameter_tuning:
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
                                          finishing_time,
-                                         self.file_location)
+                                         file_location)
             return cv_results_df.append(df)
         else:
             print("===========================================")
@@ -137,9 +140,8 @@ class parameter_tuning:
     @staticmethod
     def timer(start_time=None):
         """
-
         :param start_time: 0
-        :return: Completion time
+        :return: Completion time string
         """
         time_list = []
         if not start_time:
