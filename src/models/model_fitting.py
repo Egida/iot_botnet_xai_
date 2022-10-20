@@ -46,7 +46,7 @@ class parameter_tuning:
         :param parameters: various combinations for parameters for classifier.
         :return:
         """
-
+        cv_result_df = pd.DataFrame()
         print("Tuning Type:{0}\n".format(self.search_type))
         # Classifier name
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
@@ -55,7 +55,7 @@ class parameter_tuning:
         cv = KFold(n_splits=5, random_state=100, shuffle=True)
 
         search_type = self.search_type[0]
-
+        # Grid search tuning.
         if search_type == 'grid_search':
             # Grid Search parameter type
             tuned_model = GridSearchCV(ml_classifier,
@@ -63,6 +63,16 @@ class parameter_tuning:
                                        scoring=self.metric_type,
                                        verbose=10,
                                        refit=False)
+            start_time = self.timer(0)
+            tuned_model.fit(self.X[0], self.y[0])
+            finishing_time = self.timer(start_time)
+            # saving the logs of model into a text file
+            cv_results_df = self.res_logs_text_file(mlclassifier_name,
+                                                    tuned_model,
+                                                    finishing_time,
+                                                    self.file_location)
+            return cv_results_df
+        # random search
         elif search_type == 'random_search':
             # Random Search Parameter Tuning
             tuned_model = RandomizedSearchCV(estimator=ml_classifier,
@@ -71,25 +81,34 @@ class parameter_tuning:
                                              cv=cv,
                                              verbose=10,
                                              refit=False)
-
+            # Tuning the model
+            start_time = self.timer(0)
+            tuned_model.fit(self.X[0], self.y[0])
+            finishing_time = self.timer(start_time)
+            # saving the logs of model into a text file
+            cv_results_df = self.res_logs_text_file(mlclassifier_name,
+                                                    tuned_model,
+                                                    finishing_time,
+                                                    self.file_location)
         else:
             print("===========================================")
             print(f'{search_type} is wrong key word.'
                   f'Key word should be either 1.grid_search or 2.random_search')
 
-        # Finally fit the Classifier
-        start_time = self.timer(0)  # starting time for model training
-        tuned_model = tuned_model.fit(self.X[0], self.y[0])  # fitting the model
-        finish_time = self.timer(start_time)  # Finishing for model training
+        # save the model
+        return cv_results_df
 
-        file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
-        print("File location :{0}".format(file_name))
 
-        # Save the model
-        joblib.dump(tuned_model, file_name)
-
-        # adding output results to a file.
-        with open(f'reports/{self.file_location}/parameter_tuning.txt', 'a') as res_logs:
+    def res_logs_text_file(self, mlclassifier_name, tuned_model, finish_time, file_location):
+        """
+        saving the result into a text files
+        :param file_location: save resultant file location name. it must be with dataset name
+        :param mlclassifier_name: classifier name
+        :param tuned_model:  trained model
+        :param finish_time: model finishing time
+        :return: dataframe
+        """
+        with open(f'reports/{file_location}/parameter_tuning.txt', 'a') as res_logs:
             res_logs.write('==' * 40)
             res_logs.write("\n")
             res_logs.write("1.Classifier:{0}\n".format(mlclassifier_name))
@@ -100,7 +119,14 @@ class parameter_tuning:
             res_logs.write('\n')
             res_logs.write('==' * 40)
             res_logs.write('\n')
+
+        # cv results
         cv_results_df = pd.DataFrame(tuned_model.cv_results_)
+
+        # save the model
+        file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
+        joblib.dump(tuned_model, file_name)
+
         return cv_results_df
 
     # Time to  count the model for training.
@@ -283,12 +309,10 @@ xgboost
         """
         model_fitting_dict = {'dt': self.dt_classification(),
                               'rf': self.rf_classification(),
-                              'ext':self.et_classification(),
-                              'gbc':self.grdient_boosting_classification(),
+                              'ext': self.et_classification(),
+                              'gbc': self.grdient_boosting_classification(),
                               'xgb': self.xgboost_classification(),
                               'lgb': self.lgboost_classification(),
-                              'knn':self.knn_classification()
+                              'knn': self.knn_classification()
                               }
         return model_fitting_dict
-
-
