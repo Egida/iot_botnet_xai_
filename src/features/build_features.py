@@ -106,9 +106,6 @@ class Filtermethods:
             print("==" * 40)
             print("\nSorry Feature Selection Type is {0} wrong key word.\n"
                   "Feature Selection{0} must be 1.fisher_score or 2.mutual_info".format(feature_selection_method_name))
-        print("Selected Features:{0}\n".format(features))
         return features[0]
 
-
 # %%
-
