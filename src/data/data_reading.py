@@ -19,7 +19,7 @@ def datareading(folder_name, file_name, class_name, sample_size, x_numbers):
     if len(data[class_name].unique()) ==2:
         print("Binary Classification")
     else:
-        print("Multi Class Classification")
+        print("Multi-Class Classification")
     print(f"class_name:{class_name}")
     print(f"class Labels:".format({data[class_name].unique()}))
     df = data.groupby(class_name).apply(lambda x: x.sample(n=sample_size)).reset_index(drop=True)
@@ -34,4 +34,6 @@ def datareading(folder_name, file_name, class_name, sample_size, x_numbers):
     y = df[class_name]
     print("=="*40)
     return X, y
+
+
 
