@@ -62,7 +62,6 @@ class feature_importance_metrics:
         """
         # find predicted class
         pred_class = np.argmax(model.predict_proba(x.reshape(1, -1)), axis=1)[0]
-
         x_copy = base.copy()
 
         # find indexes of coefficients in increasing order of value
