@@ -5,7 +5,6 @@ class feature_importance_metrics:
     """
     Explainable metrics based on  feature importance score of Explainable AI techniques.
     """
-
     @staticmethod
     def faithfulness_metric(model, x, coefs, base):
 
@@ -76,6 +75,4 @@ class feature_importance_metrics:
 
         return np.all(np.diff(pred_probs[ar]) >= 0)
 
-
-# %%
 
