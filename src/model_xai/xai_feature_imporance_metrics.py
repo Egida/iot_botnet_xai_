@@ -41,3 +41,4 @@ class feature_importance_metrics:
             pred_probs[ind] = x_copy_pr[0][pred_class]
 
         return -np.corrcoef(coefs, pred_probs)[0, 1]
+
