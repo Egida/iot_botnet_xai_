@@ -48,7 +48,6 @@ class parameter_tuning:
 
         cv_results_df = pd.DataFrame()
         print("==" * 50)
-        print("Tuning Type:{0}\n".format(self.search_type))
         # Classifier name
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
         print("Classifier is {0}".format(mlclassifier_name))
@@ -58,22 +57,28 @@ class parameter_tuning:
         # data shape
         print("X variable: {0}\ny Variable:{1}".format(X.shape, y.shape))
         # cross validation
-        cv = KFold(n_splits=5, random_state=100, shuffle=True)
+        cv = KFold(n_splits=10, random_state=100, shuffle=True)
         search_type = self.search_type[0]
         metric_type = self.metric_type[0]
         file_location = self.file_location[0]
         print("Metric:{0}".format(metric_type))
+        print("Tuning Type:{0}\n".format(search_type))
+        print("Parameters are:")
+        for key, value in parameters.items():
+            print("{0}:{1}".format(key, value))
+
         # Grid search tuning.
         if search_type == 'grid_search':
             # Grid Search parameter type
             tuned_model = GridSearchCV(estimator=ml_classifier,
                                        param_grid=parameters,
                                        scoring=metric_type,
-                                       verbose=10, refit=False, n_jobs=-1)
+                                       verbose=10, refit=True, n_jobs=-1)
             start_time = self.timer(0)
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
             print("Best parameters:{0}".format(tuned_model.best_params_))
+            print("Best Estimator:{0}".format(tuned_model.best_estimator_))
             # saving the logs of model into a text file
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
@@ -86,7 +91,7 @@ class parameter_tuning:
             # Random Search Parameter Tuning
             tuned_model = RandomizedSearchCV(estimator=ml_classifier, param_distributions=parameters,
                                              scoring=metric_type, cv=cv,
-                                             verbose=10, refit=False, n_jobs=-1)
+                                             verbose=10, refit=True, n_jobs=-1)
             # Tuning the model
             start_time = self.timer(0)
             tuned_model.fit(X, y)
@@ -121,6 +126,7 @@ class parameter_tuning:
             res_logs.write("1.Classifier:{0}\n".format(mlclassifier_name))
             res_logs.write("2.Best Parameters:{0}\n".format(str(tuned_model.best_params_)))
             res_logs.write("3.Duration:{0}\n".format(str(finish_time)))
+            res_logs.write("4.Best Estimator{0}\n".format(str(tuned_model.best_estimator_)))
             res_logs.write('\nAccuracy: %.5f (%.5f)' % (
                 tuned_model.best_score_ * 100, mean(tuned_model.cv_results_['std_test_score']) * 100))
             res_logs.write('\n')
@@ -219,8 +225,6 @@ K-nearest neighbor classification
         }
         # print("Tuning Type:{0}\n".format(self.search_type))
         # print("Classifier name:{0}\n".format(classifier.__class__.__name__))
-        for key, value in knn_params.items():
-            print("{0}:{1}".format(key, value))
         # parameters for grid search
         # fitting the grid search or random search
         cv_results = self._fit_grid_random_search(classifier, knn_params)
@@ -325,3 +329,20 @@ xgboost
                               'knn': self.knn_classification()
                               }
         return model_fitting_dict
+
+
+#%%
+class DecisionStump():
+    def __init__(self):
+        # Determines if sample shall be classified as -1 or 1 given threshold
+        self.polarity = 1
+        # The index of the feature used to make classification
+        self.feature_index = None
+        # The threshold value that the feature should be measured against
+        self.threshold = None
+        # Value indicative of the classifier's accuracy
+        self.alpha = None
+
+#%%
+clf = DecisionStump()
+
