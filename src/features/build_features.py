@@ -8,11 +8,14 @@ from matplotlib import pyplot as plt
 
 
 class Filtermethods:
+    """
+    Filter Method Feature selection Techniques.
+    """
 
     @staticmethod
     def fishers_score(data, labels):
         """
-        Computes the fishers for every feature between indepdent Variable and Dependent Variable.
+        Computes the fishers for every feature between independent Variable and Dependent Variable.
         :param data: Independent variables
         :param labels: Dependent Variable
         :return: Fishers score for every Feature
@@ -82,26 +85,30 @@ class Filtermethods:
         X_values = sel_.transform(X)
         return features, df
 
-    def feature_selection_type(self, X, y, feature_selection_type='fisher_score', number_of_features=5):
+    def feature_selection_type(self, X, y, feature_selection_method_name='fisher_score', number_of_features=5):
         """
-
         :param X: (pandas.core.frame.DataFrame) Data
         :param y: (pandas.core.frame.DataFrame) labels
-        :param feature_selection_type: (str) types are 1.fisher_score or 2. mutual_info
+        :param feature_selection_method_name: (str) types are 1.fisher_score or 2. mutual_info
         :param number_of_features: (int)
+        :return: (list) List of features
         """
         features = []
-        if feature_selection_type == 'fisher_score':
+        if feature_selection_method_name == 'fisher_score':
             print("Feature Selection Type:{0}\n".format("Fisher Score"))
             fisher_score_df = self.fishers_score(X, y)
             fisher_score_features = list(fisher_score_df.columns)[0:number_of_features]
             features.append(fisher_score_features)
-        elif feature_selection_type == 'mutual_info':
+        elif feature_selection_method_name == 'mutual_info':
             mutual_info_features, mutual_info_score = self.mutual_information_fs(X, y, feature_count=number_of_features)
             features.append(list(mutual_info_features))
         else:
-            print("=="*40)
+            print("==" * 40)
             print("\nSorry Feature Selection Type is {0} wrong key word.\n"
-                  "Feature Selection{0} must be 1.fisher_score or 2.mutual_info".format(feature_selection_type))
+                  "Feature Selection{0} must be 1.fisher_score or 2.mutual_info".format(feature_selection_method_name))
         print("Selected Features:{0}\n".format(features))
-        return features
+        return features[0]
+
+
+# %%
+
