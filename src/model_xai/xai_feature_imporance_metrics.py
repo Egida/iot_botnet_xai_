@@ -42,3 +42,35 @@ class feature_importance_metrics:
 
         return -np.corrcoef(coefs, pred_probs)[0, 1]
 
+    def monotonicity_metric(self, model, x, coefs, base):
+        """
+        This metric measures the effect of individual features on model performance by evaluating the effect on
+        model performance of incrementally adding each attribute in order of increasing importance. As each feature
+        is added, the performance of the model should correspondingly increase, thereby resulting in monotonically
+        increasing model performance. [#]_
+        References:
+            .. [#] `Ronny Luss, Pin-Yu Chen, Amit Dhurandhar, Prasanna Sattigeri, Karthikeyan Shanmugam, and
+               Chun-Chen Tu. Generating Contrastive Explanations with Monotonic Attribute Functions. CoRR abs/1905.13565. 2019.
+               <https://arxiv.org/pdf/1905.12698.pdf>`_
+
+        :param model: Trained Classifier, such as Scikit-learn classifier that implements a predict() and  predict_prob()
+        :param x: (numpy.ndarray) row of data.
+        :param coefs:(numpy.ndarray) co-efficients(weights) corresponding to attribute importance.
+        :param base: ((numpy.ndarray) base (default) values of features(attributes)
+        :return: True if the relationship is monotonic.
+        """
+        # find predicted class
+        pred_class = np.argmax(model.predict_proba(x.reshape(1, -1)), axis=1)[0]
+
+        x_copy = base.copy()
+
+        # find indexes of coefficients in increasing order of value
+        ar = np.argsort(coefs)
+        pred_probs = np.zeros(x.shape[0])
+        for ind in np.nditer(ar):
+            x_copy[ind] = x[ind]
+            x_copy_pr = model.predict_proba(x_copy.reshape(1, -1))
+            pred_probs[ind] = x_copy_pr[0][pred_class]
+
+        return np.all(np.diff(pred_probs[ar]) >= 0)
+
