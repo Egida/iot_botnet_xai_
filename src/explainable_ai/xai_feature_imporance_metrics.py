@@ -1,5 +1,5 @@
-import numpy as np
 
+import numpy as np
 
 class feature_importance_metrics:
     """
