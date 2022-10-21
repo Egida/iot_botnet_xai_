@@ -6,7 +6,8 @@ class feature_importance_metrics:
     Explainable metrics based on  feature importance score of Explainable AI techniques.
     """
 
-    def faithfulness_metric(self, model, x, coefs, base):
+    @staticmethod
+    def faithfulness_metric(model, x, coefs, base):
 
         """
         This metric evaluates the correlation between the importance assigned by the interpretability algorithm
@@ -42,7 +43,8 @@ class feature_importance_metrics:
 
         return -np.corrcoef(coefs, pred_probs)[0, 1]
 
-    def monotonicity_metric(self, model, x, coefs, base):
+    @staticmethod
+    def monotonicity_metric(model, x, coefs, base):
         """
         This metric measures the effect of individual features on model performance by evaluating the effect on
         model performance of incrementally adding each attribute in order of increasing importance. As each feature
