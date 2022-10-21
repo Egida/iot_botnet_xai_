@@ -73,7 +73,8 @@ class parameter_tuning:
             tuned_model = GridSearchCV(estimator=ml_classifier,
                                        param_grid=parameters,
                                        scoring=metric_type,
-                                       verbose=10, refit=True, n_jobs=-1)
+                                       verbose=10, refit='AUC',
+                                       return_train_score=True, n_jobs=-1)
             start_time = self.timer(0)
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
@@ -91,7 +92,7 @@ class parameter_tuning:
             # Random Search Parameter Tuning
             tuned_model = RandomizedSearchCV(estimator=ml_classifier, param_distributions=parameters,
                                              scoring=metric_type, cv=cv,
-                                             verbose=10, refit=True, n_jobs=-1)
+                                             verbose=10, refit='AUC', return_train_score=True,n_jobs=-1)
             # Tuning the model
             start_time = self.timer(0)
             tuned_model.fit(X, y)
@@ -128,8 +129,7 @@ class parameter_tuning:
             res_logs.write("2.Best Parameters:{0}\n".format(str(tuned_model.best_params_)))
             res_logs.write("3.Duration:{0}\n".format(str(finish_time)))
             res_logs.write("4.Best Estimator{0}\n".format(str(tuned_model.best_estimator_)))
-            res_logs.write('\nAccuracy: %.5f (%.5f)' % (
-                tuned_model.best_score_ * 100, mean(tuned_model.cv_results_['std_test_score']) * 100))
+            res_logs.write('\nAccuracy: %.5f ' % (tuned_model.best_score_ * 100))
             res_logs.write('\n')
             res_logs.write('==' * 40)
             res_logs.write('\n')
@@ -299,21 +299,15 @@ xgboost
         """
         Gradient Boosting classifier
         """
-        lgb_params = {
-            'num_leaves': sp_randint(6, 50),
-            'min_child_samples': sp_randint(100, 500),
-            'max_depth': list(range(5, 51, 5)),
-            'learning_rate': list(np.arange(0, 1.1, 0.4)),
-            'min_child_weight': [1e-5, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4],
-            'subsample': sp_uniform(loc=0.2, scale=0.8),
-            'colsample_bytree': sp_uniform(loc=0.4, scale=0.6),
-            'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
-            'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100]
+        gbc_params = {
+            'n_estimators': [int(x) for x in range(200, 2000, 200)],
+            'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
+            'learning_rate': [0.1, 0.001, 0.01]
         }
 
         gbc_clf = GradientBoostingClassifier(min_samples_split=500, min_samples_leaf=50, max_depth=8,
                                              max_features='sqrt', subsample=0.8, random_state=10)
-        cv_results = self._fit_grid_random_search(gbc_clf,lgb_params)
+        cv_results = self._fit_grid_random_search(gbc_clf, gbc_params)
         return cv_results
 
     def fitting_models(self):
@@ -329,7 +323,3 @@ xgboost
                               'gbc': self.grdient_boosting_classification()
                               }
         return model_fitting_dict
-
-
-
-
