@@ -96,7 +96,8 @@ class parameter_tuning:
             start_time = self.timer(0)
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
-            print("Best parameters:{0}".format(tuned_model.best_params_))
+            print("Best Parameters:{0}".format(tuned_model.best_params_))
+            print("Best Estimator:{0}".format(tuned_model.best_estimator_))
             # saving the logs of model into a text file
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
