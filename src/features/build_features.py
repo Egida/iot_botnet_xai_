@@ -5,6 +5,7 @@ from more_itertools import locate
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+import itertools
 
 
 class Filtermethods:
@@ -106,6 +107,7 @@ class Filtermethods:
             print("==" * 40)
             print("\nSorry Feature Selection Type is {0} wrong key word.\n"
                   "Feature Selection{0} must be 1.fisher_score or 2.mutual_info".format(feature_selection_method_name))
-        return features[0]
+
+        return list(itertools.chain.from_iterable(features))
 
 # %%
