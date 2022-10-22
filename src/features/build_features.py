@@ -105,8 +105,8 @@ class Filtermethods:
             features.append(list(mutual_info_features))
         else:
             print("==" * 40)
-            print("\nSorry Feature Selection Type is {0} wrong key word.\n"
-                  "Feature Selection{0} must be 1.fisher_score or 2.mutual_info".format(feature_selection_method_name))
+            print('\nSorry Feature Selection Type is "{0}" wrong key word.\n'
+                  'Feature_Selection_method_name must be 1.fisher_score or 2.mutual_info'.format(feature_selection_method_name))
 
         return list(itertools.chain.from_iterable(features))
 
