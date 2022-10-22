@@ -48,9 +48,6 @@ class parameter_tuning:
 
         cv_results_df = pd.DataFrame()
         print("==" * 50)
-        # Classifier name
-        mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
-        print("Classifier is {0}".format(mlclassifier_name))
         # changing tuple object to variables
         X = self.X[0]
         y = self.y[0]
@@ -167,6 +164,9 @@ class parameter_tuning:
         """
         # Initiate the classifier
         classifier = RandomForestClassifier(n_jobs=-1)
+        # Classifier name
+        mlclassifier_name = str(type(classifier)).split(".")[-1][:-2]
+        print("Classifier is {0}".format(mlclassifier_name))
         # parameters
         rf_params = {
             'max_features': ['sqrt', 'auto', 'log2', None],
@@ -184,7 +184,8 @@ class parameter_tuning:
         # parameters for grid search
         # fitting the grid search or random search
         cv_results = self._fit_grid_random_search(classifier, rf_params)
-        return cv_results
+        classifier_res = {mlclassifier_name:cv_results}
+        return classifier_res
 
     def dt_classification(self):
         """
