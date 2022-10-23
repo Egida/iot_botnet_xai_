@@ -320,7 +320,7 @@ class parameter_tuning:
         """
         fitting all the models
         """
-
+        # initiate the dict of models.
         model_fitting_dict = {}
         model_fitting_dict.update(self.dt_classification())
         model_fitting_dict.update(self.rf_classification())
