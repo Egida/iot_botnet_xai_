@@ -15,7 +15,7 @@ from scipy.stats import uniform as sp_uniform
 from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier
 
 
-class parameter_tuning:
+class ParameterTuning:
     """
     Tuning Algorithms
     """
