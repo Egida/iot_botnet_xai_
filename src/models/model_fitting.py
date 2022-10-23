@@ -13,14 +13,16 @@ import xgboost as xgb
 import lightgbm as lgb
 from scipy.stats import uniform as sp_uniform
 from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier
+from src.features.build_features import FilterMethods
 
 
-class ParameterTuning:
+class ParameterTuning(FilterMethods):
     """
     Tuning Algorithms
     """
 
-    def __int__(self, X, y, metric_type, file_location, search_type='grid_search'):
+    def __int__(self, X, y, metric_type, feature_selection_method_name='fisher_score', number_of_features=5,
+                search_type='grid_search', file_location=""):
         """
         Tuning the algorithms
 
@@ -32,6 +34,8 @@ class ParameterTuning:
         """
         self.X = X,
         self.y = y,
+        self.feature_selection_method_name = feature_selection_method_name,
+        self.number_of_features = number_of_features,
         self.metric_type = metric_type,
         self.search_type = search_type,
         self.file_location = file_location
@@ -50,12 +54,21 @@ class ParameterTuning:
         print("==" * 50)
         # classifier Name
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
-        print("Classifier is {0}".format(mlclassifier_name))
+        print("Classifier is {0}\n".format(mlclassifier_name))
         # changing tuple object to variables
         X = self.X[0]
         y = self.y[0]
+        feature_selection_method_name = self.feature_selection_method_name[0]
+        number_of_features = self.number_of_features[0]
         # data shape
-        print("X variable: {0}\ny Variable:{1}".format(X.shape, y.shape))
+        print("X variable: {0}\ny Variable:{1}\n".format(X.shape, y.shape))
+
+        # feature selection
+        features = self.fitting_with_feature_selection(X, y, feature_selection_method_name, number_of_features)
+        X = X[features]
+        print("--"*40)
+        print("after Feature Selection\n")
+        print("data shape:{0}\n".format(X.shape))
         # cross validation
         cv = KFold(n_splits=10, random_state=100, shuffle=True)
         search_type = self.search_type[0]
@@ -78,6 +91,11 @@ class ParameterTuning:
             start_time = self.timer(0)
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
+
+            file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
+            print("file Location with name {0} ".format(file_name))
+            joblib.dump(tuned_model, file_name)
+
             print("Best parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
             # saving the logs of model into a text file
@@ -99,6 +117,9 @@ class ParameterTuning:
             finishing_time = self.timer(start_time)
             print("Best Parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
+
+            file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
+            joblib.dump(tuned_model, file_name)
             # saving the logs of model into a text file
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
@@ -113,7 +134,8 @@ class ParameterTuning:
         # save the model
         return cv_results_df
 
-    def res_logs_text_file(self, mlclassifier_name, tuned_model, finish_time, file_location):
+    @staticmethod
+    def res_logs_text_file(mlclassifier_name, tuned_model, finish_time, file_location):
         """
         saving the result into a text files
         :param file_location: save resultant file location name. it must be with dataset name
@@ -138,9 +160,6 @@ class ParameterTuning:
         cv_results_df = pd.DataFrame(tuned_model.cv_results_)
 
         # save the model
-        file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
-        joblib.dump(tuned_model, file_name)
-
         return cv_results_df
 
     # Time to  count the model for training.
@@ -332,3 +351,14 @@ class ParameterTuning:
         model_fitting_dict.update(self.knn_classification())
         model_fitting_dict.update(self.grdient_boosting_classification())
         return model_fitting_dict
+
+    def fitting_with_feature_selection(self, X, y, feature_Selection_method_name, number_of_features):
+        """
+        Fitting with feature selection
+        """
+        # read the features
+
+        features = self.feature_selection_type(X, y,
+                                               feature_Selection_method_name,
+                                               number_of_features)
+        return features
