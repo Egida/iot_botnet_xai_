@@ -43,7 +43,7 @@ class parameter_tuning:
         :param y: Dependent Variable
         :param ml_classifier: Scikit learn classifier
         :param parameters: various combinations for parameters for classifier.
-        :return:
+        :return: (dict) resultant dict.
         """
 
         cv_results_df = pd.DataFrame()
@@ -215,7 +215,7 @@ class parameter_tuning:
 
     def knn_classification(self):
         """
-K-nearest neighbor classification
+        K-nearest neighbor classification
         """
         # Initiate the classifier
         classifier = KNeighborsClassifier(n_jobs=-1)
@@ -235,7 +235,7 @@ K-nearest neighbor classification
 
     def xgboost_classification(self):
         """
-xgboost
+        xgboost
         """
         xgb_params = rf_params = {
             'num_leaves': sp_randint(6, 50),
@@ -259,6 +259,11 @@ xgboost
         """
         Light gradient boosting
         """
+        # Initiate Classifier
+        lgbm_classifier = lgb.LGBMClassifier(random_state=314,
+                                             silent=True, metric='None',
+                                             n_jobs=4, n_estimators=5000)
+
         # parameters combinations
         lgb_params = {
             'num_leaves': sp_randint(6, 50),
@@ -272,8 +277,6 @@ xgboost
             'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100]
         }
 
-        lgbm_classifier = lgb.LGBMClassifier(random_state=314, silent=True, metric='None', n_jobs=4, n_estimators=5000)
-
         cv_results = self._fit_grid_random_search(lgbm_classifier, lgb_params)
         return cv_results
 
@@ -281,6 +284,7 @@ xgboost
         """
         Extra tree Classification
         """
+        # Initiate classifier
         xt_clf = ExtraTreesClassifier(verbose=10,
                                       random_state=123,
                                       n_jobs=-1)
@@ -316,12 +320,13 @@ xgboost
         """
         fitting all the models
         """
-        model_fitting_dict = {'dt': self.dt_classification(),
-                              'rf': self.rf_classification(),
-                              'ext': self.et_classification(),
-                              'xgb': self.xgboost_classification(),
-                              'lgb': self.lgboost_classification(),
-                              'knn': self.knn_classification(),
-                              'gbc': self.grdient_boosting_classification()
-                              }
+
+        model_fitting_dict = {}
+        model_fitting_dict.update(self.dt_classification())
+        model_fitting_dict.update(self.rf_classification())
+        model_fitting_dict.update(self.et_classification())
+        model_fitting_dict.update(self.xgboost_classification())
+        model_fitting_dict.update(self.lgboost_classification())
+        model_fitting_dict.update(self.knn_classification())
+        model_fitting_dict.update(self.grdient_boosting_classification())
         return model_fitting_dict
