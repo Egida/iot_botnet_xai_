@@ -16,7 +16,7 @@ from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier
 from src.features.build_features import FilterMethods
 
 
-class ParameterTuning(FilterMethods):
+class ModelFittingPipeLine(FilterMethods):
     """
     Tuning Algorithms
     """
@@ -54,7 +54,7 @@ class ParameterTuning(FilterMethods):
         print("==" * 50)
         # classifier Name
         mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
-        print("Classifier is {0}\n".format(mlclassifier_name))
+        print("\nClassifier is {0}\n".format(mlclassifier_name))
         # changing tuple object to variables
         X = self.X[0]
         y = self.y[0]
@@ -64,9 +64,9 @@ class ParameterTuning(FilterMethods):
         print("X variable: {0}\ny Variable:{1}\n".format(X.shape, y.shape))
 
         # feature selection
-        features = self.fitting_with_feature_selection(X, y, feature_selection_method_name, number_of_features)
+        features = self.feature_selection_type(X, y, feature_selection_method_name, number_of_features)
         X = X[features]
-        print("--"*40)
+        print("--" * 40)
         print("after Feature Selection\n")
         print("data shape:{0}\n".format(X.shape))
         # cross validation
@@ -92,9 +92,9 @@ class ParameterTuning(FilterMethods):
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
 
-            file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
+            file_name = f'{self.file_location}/{mlclassifier_name}.pkl'
             print("file Location with name {0} ".format(file_name))
-            joblib.dump(tuned_model, file_name)
+            joblib.dump(tuned_model.best_estimator_, file_name)
 
             print("Best parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
@@ -117,9 +117,8 @@ class ParameterTuning(FilterMethods):
             finishing_time = self.timer(start_time)
             print("Best Parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
-
-            file_name = f'models/{self.file_location}/{mlclassifier_name}.pkl'
-            joblib.dump(tuned_model, file_name)
+            file_name = f'{self.file_location}/{mlclassifier_name}.pkl'
+            joblib.dump(tuned_model.best_estimator_, file_name)
             # saving the logs of model into a text file
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
@@ -341,7 +340,9 @@ class ParameterTuning(FilterMethods):
         """
         fitting all the models
         """
+        file_location = self.file_location[0]
         # initiate the dict of models.
+        file_name = f'{file_location}/all_models_cv_results.pkl'
         model_fitting_dict = {}
         model_fitting_dict.update(self.dt_classification())
         model_fitting_dict.update(self.rf_classification())
@@ -350,6 +351,7 @@ class ParameterTuning(FilterMethods):
         model_fitting_dict.update(self.lgboost_classification())
         model_fitting_dict.update(self.knn_classification())
         model_fitting_dict.update(self.grdient_boosting_classification())
+        joblib.dump(model_fitting_dict,file_name)
         return model_fitting_dict
 
     def fitting_with_feature_selection(self, X, y, feature_Selection_method_name, number_of_features):
