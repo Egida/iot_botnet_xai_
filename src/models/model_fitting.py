@@ -48,6 +48,9 @@ class parameter_tuning:
 
         cv_results_df = pd.DataFrame()
         print("==" * 50)
+        # classifier Name
+        mlclassifier_name = str(type(ml_classifier)).split(".")[-1][:-2]
+        print("Classifier is {0}".format(mlclassifier_name))
         # changing tuple object to variables
         X = self.X[0]
         y = self.y[0]
@@ -82,14 +85,14 @@ class parameter_tuning:
                                          tuned_model,
                                          finishing_time,
                                          file_location)
-
-            return cv_results_df.append(df)
+            model_res_dict = {mlclassifier_name: cv_results_df.append(df)}
+            return model_res_dict
         # random search
         elif search_type == 'random_search':
             # Random Search Parameter Tuning
             tuned_model = RandomizedSearchCV(estimator=ml_classifier, param_distributions=parameters,
                                              scoring=metric_type, cv=cv,
-                                             verbose=10, refit='AUC', return_train_score=True,n_jobs=-1)
+                                             verbose=10, refit='AUC', return_train_score=True, n_jobs=-1)
             # Tuning the model
             start_time = self.timer(0)
             tuned_model.fit(X, y)
@@ -165,8 +168,7 @@ class parameter_tuning:
         # Initiate the classifier
         classifier = RandomForestClassifier(n_jobs=-1)
         # Classifier name
-        mlclassifier_name = str(type(classifier)).split(".")[-1][:-2]
-        print("Classifier is {0}".format(mlclassifier_name))
+
         # parameters
         rf_params = {
             'max_features': ['sqrt', 'auto', 'log2', None],
@@ -184,8 +186,7 @@ class parameter_tuning:
         # parameters for grid search
         # fitting the grid search or random search
         cv_results = self._fit_grid_random_search(classifier, rf_params)
-        classifier_res = {mlclassifier_name:cv_results}
-        return classifier_res
+        return cv_results
 
     def dt_classification(self):
         """
