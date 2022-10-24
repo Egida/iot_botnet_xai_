@@ -127,8 +127,8 @@ class ModelFittingPipeLine(FilterMethods):
             return cv_results_df.append(df)
         else:
             print("===========================================")
-            print(f'{search_type} is wrong key word.'
-                  f'Key word should be either 1.grid_search or 2.random_search')
+            print('{0} is wrong key word.'
+                  'Key word should be either 1.grid_search or 2.random_search'.format(search_type))
 
         # save the model
         return cv_results_df
