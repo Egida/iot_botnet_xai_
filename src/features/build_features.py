@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 import itertools
 
 
+
 class FilterMethods:
     """
     Filter Method Feature selection Techniques.
@@ -86,7 +87,8 @@ class FilterMethods:
         X_values = sel_.transform(X)
         return features, df
 
-    def feature_selection_type(self, X, y, feature_selection_method_name='fisher_score', number_of_features=5):
+    def feature_selection_type(self, X, y, feature_selection_method_name='fisher_score',
+                               number_of_features=5):
         """
         :param X: (pandas.core.frame.DataFrame) Data
         :param y: (pandas.core.frame.DataFrame) labels
@@ -107,7 +109,7 @@ class FilterMethods:
             print("==" * 40)
             print('\nSorry Feature Selection Type is "{0}" wrong key word.\n'
                   'Feature_Selection_method_name must be 1.fisher_score or 2.mutual_info'.format(feature_selection_method_name))
-
+        print("Selected Features are:{0}".format(features))
         return list(itertools.chain.from_iterable(features))
 
 # %%
