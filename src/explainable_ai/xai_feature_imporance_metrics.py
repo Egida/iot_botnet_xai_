@@ -1,7 +1,7 @@
 
 import numpy as np
 
-class feature_importance_metrics:
+class FeatureImportanceMetrics:
     """
     Explainable metrics based on  feature importance score of Explainable AI techniques.
     """
