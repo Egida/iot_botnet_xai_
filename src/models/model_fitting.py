@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime
 import joblib
 import numpy as np
@@ -14,15 +15,18 @@ import lightgbm as lgb
 from scipy.stats import uniform as sp_uniform
 from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier
 from src.features.build_features import FilterMethods
+import pickle
+
+warnings.filterwarnings("ignore")
 
 
-class ModelFittingPipeLine(FilterMethods):
+class ModelFittingPipeLine:
     """
     Tuning Algorithms
     """
 
-    def __int__(self, X, y, metric_type, feature_selection_method_name='fisher_score', number_of_features=5,
-                search_type='grid_search', file_location=""):
+    def __init__(self, X, y, metric_type, feature_selection_method_name='fisher_score', number_of_features=5,
+                 search_type='grid_search', file_location=""):
         """
         Tuning the algorithms
 
@@ -34,9 +38,9 @@ class ModelFittingPipeLine(FilterMethods):
         """
         self.X = X,
         self.y = y,
+        self.metric_type = metric_type,
         self.feature_selection_method_name = feature_selection_method_name,
         self.number_of_features = number_of_features,
-        self.metric_type = metric_type,
         self.search_type = search_type,
         self.file_location = file_location
 
@@ -64,7 +68,7 @@ class ModelFittingPipeLine(FilterMethods):
         print("X variable: {0}\ny Variable:{1}\n".format(X.shape, y.shape))
 
         # feature selection
-        features = self.feature_selection_type(X, y, feature_selection_method_name, number_of_features)
+        features = FilterMethods().feature_selection_type(X, y, feature_selection_method_name, number_of_features)
         X = X[features]
         print("--" * 40)
         print("after Feature Selection\n")
@@ -73,13 +77,12 @@ class ModelFittingPipeLine(FilterMethods):
         cv = KFold(n_splits=10, random_state=100, shuffle=True)
         search_type = self.search_type[0]
         metric_type = self.metric_type[0]
-        file_location = self.file_location[0]
+        file_location = self.file_location[0].strip()
         print("Metric:{0}".format(metric_type))
         print("Tuning Type:{0}\n".format(search_type))
         print("Parameters are:")
         for key, value in parameters.items():
             print("{0}:{1}".format(key, value))
-
         # Grid search tuning.
         if search_type == 'grid_search':
             # Grid Search parameter type
@@ -92,10 +95,11 @@ class ModelFittingPipeLine(FilterMethods):
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
 
-            file_name = f'{self.file_location}/{mlclassifier_name}.pkl'
+            file_name = f'{file_location}/{mlclassifier_name}.pkl'
             print("file Location with name {0} ".format(file_name))
-            joblib.dump(tuned_model.best_estimator_, file_name)
-
+            # joblib.dump(tuned_model.best_estimator_, file_name)
+            with open(file_name, 'wb') as f:
+                pickle.dump(tuned_model.best_params_, f)
             print("Best parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
             # saving the logs of model into a text file
@@ -117,8 +121,13 @@ class ModelFittingPipeLine(FilterMethods):
             finishing_time = self.timer(start_time)
             print("Best Parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
-            file_name = f'{self.file_location}/{mlclassifier_name}.pkl'
-            joblib.dump(tuned_model.best_estimator_, file_name)
+
+            print('File Location: {0}/{1}.pkl'.format(file_location, mlclassifier_name))
+            file_name = '{0}/{1}.pkl'.format(file_location,mlclassifier_name)
+            # joblib.dump(tuned_model.best_estimator_, file_name)
+
+            with open(file_name, 'wb') as f:
+                pickle.dump(tuned_model.best_params_, f)
             # saving the logs of model into a text file
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
@@ -351,7 +360,7 @@ class ModelFittingPipeLine(FilterMethods):
         model_fitting_dict.update(self.lgboost_classification())
         model_fitting_dict.update(self.knn_classification())
         model_fitting_dict.update(self.grdient_boosting_classification())
-        joblib.dump(model_fitting_dict,file_name)
+        joblib.dump(model_fitting_dict, file_name)
         return model_fitting_dict
 
     def fitting_with_feature_selection(self, X, y, feature_Selection_method_name, number_of_features):
