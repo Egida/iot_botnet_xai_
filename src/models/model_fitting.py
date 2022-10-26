@@ -128,7 +128,7 @@ class ModelFittingPipeLine:
             # joblib.dump(tuned_model.best_estimator_, file_name)
 
             with open(file_name, 'wb') as f:
-                pickle.dump(tuned_model.best_params_, f)
+                pickle.dump(tuned_model, f)
             # saving the logs of model into a text file
             df = self.res_logs_text_file(features=features, tuning_type=search_type,
                                          mlclassifier_name=mlclassifier_name,
@@ -369,13 +369,13 @@ class ModelFittingPipeLine:
         joblib.dump(model_fitting_dict, file_name)
         return model_fitting_dict
 
-    def fitting_with_feature_selection(self, X, y, feature_Selection_method_name, number_of_features):
-        """
-        Fitting with feature selection
-        """
-        # read the features
-
-        features = self.feature_selection_type(X, y,
-                                               feature_Selection_method_name,
-                                               number_of_features)
-        return features
+    # def fitting_with_feature_selection(self, X, y, feature_Selection_method_name, number_of_features):
+    #     """
+    #     Fitting with feature selection
+    #     """
+    #     # read the features
+    #
+    #      = self.feature_selection_type(X, y,
+    #                                            feature_Selection_method_name,
+    #                                            number_of_features)
+    #     return features
