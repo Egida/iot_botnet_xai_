@@ -37,7 +37,3 @@ def datareading(folder_name, file_name, class_name, sample_size, x_numbers):
     print("==" * 40)
     return X, y
 
-
-
-
-
