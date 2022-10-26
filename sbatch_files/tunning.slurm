@@ -1,11 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=Monotonicity
-#SBATCH --partition=gpu-test
-#SBATCH --gres=gpu:A100:1
-#SBATCH --time=3-10:00:00
-#SBATCH --mem=64GB
-#SBATCH --cpus-per-task=32
-#SBATCH --nodes=1
+#SBATCH --job-name=monotonocity
+#SBATCH --partition=green-ib
+#SBATCH --cpus-per-task=40
+#SBATCH --time=2-36:00:00
+#SBATCH --mem=80GB
 #SBATCH --output=./outputs/slurm-%j.log
 
 
