@@ -14,7 +14,3 @@ print("tell me something my darling sanchari")
 print("Hello world")
 print("hello world how are you")
 print("tell me something my darling sanchari")
-
-print("Hello world")
-print("hello world how are you")
-print("tell me something my darling sanchari")
