@@ -77,7 +77,7 @@ class ModelFittingPipeLine:
         cv = KFold(n_splits=10, random_state=100, shuffle=True)
         search_type = self.search_type[0]
         metric_type = self.metric_type[0]
-        file_location = self.file_location[0].strip()
+        #file_location = self.file_location[0].strip()
         print("Metric:{0}".format(metric_type))
         print("Tuning Type:{0}\n".format(search_type))
         print("Parameters are:")
@@ -95,7 +95,7 @@ class ModelFittingPipeLine:
             tuned_model.fit(X, y)
             finishing_time = self.timer(start_time)
 
-            file_name = f'{file_location}/{mlclassifier_name}.pkl'
+            file_name = f'{self.file_location.strip()}/{mlclassifier_name}.pkl'
             print("file Location with name {0} ".format(file_name))
             # joblib.dump(tuned_model.best_estimator_, file_name)
             with open(file_name, 'wb') as f:
@@ -106,7 +106,7 @@ class ModelFittingPipeLine:
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
                                          finishing_time,
-                                         file_location)
+                                         self.file_location.strip())
             model_res_dict = {mlclassifier_name: cv_results_df.append(df)}
             return model_res_dict
         # random search
@@ -122,8 +122,8 @@ class ModelFittingPipeLine:
             print("Best Parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
 
-            print('File Location: {0}/{1}.pkl'.format(file_location, mlclassifier_name))
-            file_name = '{0}/{1}.pkl'.format(file_location,mlclassifier_name)
+            print('File Location: {0}/{1}.pkl'.format(self.file_location.strip(), mlclassifier_name))
+            file_name = '{0}/{1}.pkl'.format(self.file_location.strip(),mlclassifier_name)
             # joblib.dump(tuned_model.best_estimator_, file_name)
 
             with open(file_name, 'wb') as f:
@@ -132,7 +132,7 @@ class ModelFittingPipeLine:
             df = self.res_logs_text_file(mlclassifier_name,
                                          tuned_model,
                                          finishing_time,
-                                         file_location)
+                                         self.file_location.strip())
             return cv_results_df.append(df)
         else:
             print("===========================================")
@@ -152,7 +152,7 @@ class ModelFittingPipeLine:
         :param finish_time: model finishing time
         :return: dataframe
         """
-        with open(f'reports/{file_location}/parameter_tuning.txt', 'a') as res_logs:
+        with open(f'{file_location}/parameter_tuning.txt', 'a') as res_logs:
             res_logs.write('==' * 40)
             res_logs.write("\n")
             res_logs.write("1.Classifier:{0}\n".format(mlclassifier_name))
