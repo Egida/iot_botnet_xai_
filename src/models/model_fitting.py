@@ -103,11 +103,12 @@ class ModelFittingPipeLine:
             print("Best parameters:{0}".format(tuned_model.best_params_))
             print("Best Estimator:{0}".format(tuned_model.best_estimator_))
             # saving the logs of model into a text file
-            df = df = self.res_logs_text_file(features=features, tuning_type=search_type,
-                                              mlclassifier_name=mlclassifier_name,
-                                              tuned_model=tuned_model,
-                                              finish_time=finishing_time,
-                                              file_location=self.file_location.strip()) # saving the results
+            df = df = self.res_logs_text_file(features, search_type,
+                                              feature_selection_method_name,
+                                              mlclassifier_name,
+                                              tuned_model,
+                                              finishing_time,
+                                              self.file_location.strip())  # saving the logs of results
             model_res_dict = {mlclassifier_name: cv_results_df.append(df)}
             return model_res_dict
         # random search
@@ -130,11 +131,12 @@ class ModelFittingPipeLine:
             with open(file_name, 'wb') as f:
                 pickle.dump(tuned_model, f)
             # saving the logs of model into a text file
-            df = self.res_logs_text_file(features=features, tuning_type=search_type,
-                                         mlclassifier_name=mlclassifier_name,
-                                         tuned_model=tuned_model,
-                                         finish_time=finishing_time,
-                                         file_location=self.file_location.strip())
+            df = self.res_logs_text_file(features, feature_selection_method_name,
+                                         search_type,
+                                         mlclassifier_name,
+                                         tuned_model,
+                                         finishing_time,
+                                         self.file_location.strip())
             return cv_results_df.append(df)
         else:
             print("===========================================")
@@ -145,9 +147,12 @@ class ModelFittingPipeLine:
         return cv_results_df
 
     @staticmethod
-    def res_logs_text_file(features, tuning_type, mlclassifier_name, tuned_model, finish_time, file_location):
+    def res_logs_text_file(features, feature_selection_method_name,
+                           tuning_type, mlclassifier_name,
+                           tuned_model, finish_time, file_location):
         """
         saving the result into a text files
+        :param feature_selection_method_name: (str) fisher_score, mutual_info
         :param tuning_type: Hyper Parameter Tunning type
         :param features: Number of selected Features
         :param file_location: save resultant file location name. it must be with dataset name
@@ -156,12 +161,13 @@ class ModelFittingPipeLine:
         :param finish_time: model finishing time
         :return: dataframe
         """
-        with open(f'{file_location}/parameter_tuning.txt', 'a') as res_logs:
+        with open(f'{file_location}/{feature_selection_method_name}_parameter_tuning.txt', 'a') as res_logs:
             res_logs.write('==' * 40)
             res_logs.write("\n")
             res_logs.write('Selected Feature are:{0}\n'.format(str(features)))
-            res_logs.write('Hyper parameter tunning type:{0]'.format(tuning_type))
-            res_logs.write("1.Classifier:{0}\n".format(mlclassifier_name))
+            res_logs.write('Hyper parameter tunning type:{0}\n'.format(tuning_type))
+            res_logs.write('--' * 10)
+            res_logs.write("\n1.Classifier:{0}\n".format(mlclassifier_name))
             res_logs.write("2.Best Parameters:{0}\n".format(str(tuned_model.best_params_)))
             res_logs.write("3.Duration:{0}\n".format(str(finish_time)))
             res_logs.write("4.Best Estimator{0}\n".format(str(tuned_model.best_estimator_)))
@@ -355,7 +361,7 @@ class ModelFittingPipeLine:
         """
         fitting all the models
         """
-        file_location = self.file_location[0]
+        file_location = self.file_location.strip()
         # initiate the dict of models.
         file_name = f'{file_location}/all_models_cv_results.pkl'
         model_fitting_dict = {}
