@@ -8,7 +8,6 @@ from matplotlib import pyplot as plt
 import itertools
 
 
-
 class FilterMethods:
     """
     Filter Method Feature selection Techniques.
