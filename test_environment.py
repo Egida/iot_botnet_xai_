@@ -5,6 +5,8 @@ from src.data.data_reading import datareading
 from src.command_line_parsing import command_line_arguments
 import joblib
 from sys import path
+from sklearn.model_selection import train_test_split
+from src.explainable_ai.metrics_test_environment import xai_metrics_scores
 
 REQUIRED_PYTHON = "python3"
 
@@ -42,7 +44,18 @@ if __name__ == '__main__':
 
     sys.path.insert(0, directory_path)
 
-    X, y = datareading(args.foldername, args.filename, args.class_name, sample_size=args.sample,x_numbers=args.fnumber)
+    X, y = datareading(args.foldername, args.filename, args.class_name, sample_size=args.sample, x_numbers=args.fnumber)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=2, shuffle=True, stratify=y)
+    print("X_train: {0}\ny_train:{1}\nX_test: {2}\ny_test:{3}".format(X_train.shape,
+                                                                      y_train.shape,
+                                                                      X_test.shape,
+                                                                      y_test.shape))
+
+    features = ['MI_dir_L5_weight', 'HH_jit_L5_mean', 'MI_dir_L5_mean']
+    target_names = ['Malware', 'Benign']
+    xai_metrics_scores(X_test, features=features, target_names=target_names, models_res_path=args.rpath)
+
     #
     # print(X.shape, y.shape)
     # X, y, metric_type,
@@ -56,10 +69,6 @@ if __name__ == '__main__':
     # print("File path: {0}/{1}".format(result_path, file_path))
 
     # print("resultant  path:{0}".format(result_path))
-    pipe_line = ModelFittingPipeLine(X, y,args.metric,args.fsname,args.fscount, args.paramtype,args.rpath)
-
-    res = pipe_line.fitting_models()
-
-
-
+    # pipe_line = ModelFittingPipeLine(X, y,args.metric,args.fsname,args.fscount, args.paramtype,args.rpath)
+    # res = pipe_line.fitting_models()
     # joblib.dump(res,args.path/'model_res.pkl')
