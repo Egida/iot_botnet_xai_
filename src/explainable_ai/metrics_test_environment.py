@@ -28,6 +28,7 @@ def lime_monotonicity(X_test, features, model, target_names):
     X = X_test[features].to_numpy()
     for i in range(n_cases):
         predicted_class = model.predict(X[i].reshape(1, -1))[0]
+        print("number of features are {0}\n".format(len(features)))
         exp = explainer.explain_instance(X[i], model.predict_proba, num_features=len(features), top_labels=1)
         local_exp = exp.local_exp[predicted_class]
         m = exp.as_map()
@@ -66,7 +67,7 @@ def lime_faith_fulness(X_test, features, model, target_names):
     fait_fulness_array = np.zeros(n_cases)
     for i in range(n_cases):
         predicted_class = model.predict(X_test[i].reshape(1, -1))[0]
-        exp = explainer.explain_instance(X_test[i], model.predict_proba, num_features=5, top_labels=1)
+        exp = explainer.explain_instance(X_test[i], model.predict_proba, num_features=len(features), top_labels=1)
         localexp = exp.local_exp[predicted_class]
         m = exp.as_map()
         x_values = X_test[i]
@@ -105,6 +106,8 @@ def xai_metrics_scores(X_test, features, target_names, models_res_path):
     faithfulness = {}
     files = os.listdir(models_res_path)  # Folder name of trained models
     for string_name in model_strings:
+        if string_name == 'KNeighborsClassifier':
+            continue
         file_name = [s for s in files if string_name in s][0]
         file_location = f'{models_res_path}/{file_name}'
         print("file Location:{0}\n".format(file_location))
