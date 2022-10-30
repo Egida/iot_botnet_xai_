@@ -1,1 +1,3 @@
-from src.explainable_ai.xai_feature_imporance_metrics import
+from src.explainable_ai.xai_feature_imporance_metrics import XaiFeatureImportanceMetrics
+
+
