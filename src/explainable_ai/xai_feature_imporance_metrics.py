@@ -1,10 +1,11 @@
-
 import numpy as np
+
 
 class XaiFeatureImportanceMetrics:
     """
     Explainable metrics based on  feature importance score of Explainable AI techniques.
     """
+
     @staticmethod
     def faithfulness_metric(model, x, coefs, base):
 
@@ -73,5 +74,4 @@ class XaiFeatureImportanceMetrics:
             pred_probs[ind] = x_copy_pr[0][pred_class]
 
         return np.all(np.diff(pred_probs[ar]) >= 0)
-
 
