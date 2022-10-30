@@ -170,7 +170,7 @@ class ModelFittingPipeLine:
             res_logs.write("\n1.Classifier:{0}\n".format(mlclassifier_name))
             res_logs.write("2.Best Parameters:{0}\n".format(str(tuned_model.best_params_)))
             res_logs.write("3.Duration:{0}\n".format(str(finish_time)))
-            res_logs.write("4.Best Estimator{0}\n".format(str(tuned_model.best_estimator_)))
+            res_logs.write("4.Best Estimator:{0}\n".format(str(tuned_model.best_estimator_)))
             res_logs.write('\nAccuracy: %.5f ' % (tuned_model.best_score_ * 100))
             res_logs.write('\n')
             res_logs.write('==' * 40)
